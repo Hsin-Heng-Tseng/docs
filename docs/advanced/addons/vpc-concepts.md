@@ -244,6 +244,34 @@ vm1-vswitch2 will send traffic via 172.20.20.1 through enp1s0.
 
 \------------------------------------------------------------------------------------------------------------------------
 ### ***Private Subnet***
+
+- **Purpose**
+The main goal of the Private Subnet feature is to provide stronger network isolation within the same VPC by restricting traffic between the private subnet and other subnets. This enhances security by preventing unauthorized access to sensitive or critical resources inside the VPC.
+
+- **Behavior**
+When Private Subnet is enabled, the subnet cannot communicate with other subnets in the same VPC by default, even though they belong to the same VPC.
+Traffic between the private subnet and other subnets is only allowed if you explicitly add their CIDR blocks to the private subnet’s Allow Subnets list.
+
+- **Practical Effect**
+
+    - **Prevents access from other subnets in the same VPC to the private subnet, enabling fine-grained network segmentation (micro-segmentation).**
+
+    - **Enhances internal security isolation and reduces potential attack surface.**
+
+    - **Allows controlled, selective cross-subnet communication by configuring allowed subnets.**
+
+***Testing Summary:***
+
+1.Enable Private Subnet on vswitch1-subnet.
+
+2.Ping from vm1-vswitch1 to vm1-vswitch2 (different subnet, not allowed) — ping fails.
+
+3.Add 172.20.20.0/24 (vswitch2-subnet) to Allow Subnets of vswitch1-subnet.
+
+4.Ping again — communication succeeds.
+
+In essence, the Private Subnet acts as an internal firewall within the VPC, only permitting cross-subnet traffic when explicitly allowed, thus enforcing stricter security boundaries.
+
 ***Test steps:***
 
 - **Open the **VPC** page, go to **vswitch1-subnet -> Edit Config**, and enable the **Private Subnet** setting.**
