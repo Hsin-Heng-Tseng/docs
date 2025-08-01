@@ -37,6 +37,17 @@ Name: vswitch1 ,  vswitch2
 
 Type: OverlayNetwork
 
+When working with Virtual Private Cloud (VPC), each Subnet must be uniquely mapped to one Overlay Network. This one-to-one relationship ensures proper isolation and clear routing paths within your virtual network infrastructure.
+
+- **An Overlay Network (e.g., vswitch) represents a virtual Layer 2 switch used to encapsulate and transmit traffic between nodes.**\
+
+- **A Subnet defines an IP range within a VPC, but it requires an underlying Overlay Network to actually forward traffic.**\
+
+- **Mapping multiple subnets to the same overlay or vice versa could result in ambiguous routing and unpredictable traffic behavior.**\
+  
+When creating a subnet, make sure to select an existing Overlay Network as its provider. Each subnet must be associated with one and only one Overlay Network.
+
+
 **2.Creat VPC**
 
 Name: vpc-1
