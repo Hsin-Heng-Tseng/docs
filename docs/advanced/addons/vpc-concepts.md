@@ -29,6 +29,59 @@ We abstract the following elements as key components within a VPC:
 
 ***VPC Creation*** 
 
+***How to Properly Map Subnets to Overlay Networks***
+
+Step 1: Create an Overlay Network
+
+1.Go to the Harvester UI.
+
+2.Navigate to Advanced > Networks.
+
+3.Click “Create” to define a new Overlay Network.
+
+- **Name example: vswitch1**\
+
+- **Type: OverlayNetwork**\
+
+4.Click Create to save.
+
+If you plan to create multiple subnets, create a separate Overlay Network for each one (e.g., vswitch2, vswitch3, etc.).
+
+Step 2: Create a Subnet and Link It to an Overlay Network
+
+1.Go to Virtual Private Cloud > Subnets.
+
+2.Click “Create”.
+
+3.Fill in the Subnet details:
+
+- **Name: vswitch1-subnet**\
+
+- **CIDR: Example 172.20.10.0/24**\
+
+- **Gateway IP: Example 172.20.10.1**\
+
+- **Provider: Select the corresponding Overlay Network from the dropdown (e.g., default/vswitch1)**\
+
+The UI will only show Overlay Networks that have not been used by other subnets — this enforces the 1:1 mapping automatically.
+
+Validation Tips:
+
+- **Once an Overlay Network is assigned to a Subnet, it cannot be reused by another.**\
+
+- **If you try to assign the same Overlay Network to multiple subnets, the system will return an error or prevent selection.**\
+
+User Reminder:
+Always ensure that each Subnet is backed by a unique Overlay Network. Mapping multiple Subnets to the same Overlay Network can cause ambiguous routing, traffic collisions, or isolation issues.
+
+- **Every new Subnet should be tied to a dedicated Overlay Network.**\
+
+- **This design also helps maintain clarity when configuring features like NAT, Private Subnet isolation, and VPC Peering.**\
+
+
+
+
+
 ***Test steps:***
 
 **1.Creat Virtual Machine Networks**
@@ -37,15 +90,23 @@ Name: vswitch1 ,  vswitch2
 
 Type: OverlayNetwork
 
-When working with Virtual Private Cloud (VPC), each Subnet must be uniquely mapped to one Overlay Network. This one-to-one relationship ensures proper isolation and clear routing paths within your virtual network infrastructure.
+***Subnet and Overlay Network: 1:1 Mapping Explanation*** 
 
-- **An Overlay Network (e.g., vswitch) represents a virtual Layer 2 switch used to encapsulate and transmit traffic between nodes.**\
+In Harvester, when working with Virtual Private Cloud (VPC) networking:
 
-- **A Subnet defines an IP range within a VPC, but it requires an underlying Overlay Network to actually forward traffic.**\
+- **An Overlay Network represents a virtual Layer 2 switch that encapsulates and forwards traffic between virtual machines.**\
 
-- **Mapping multiple subnets to the same overlay or vice versa could result in ambiguous routing and unpredictable traffic behavior.**\
-  
-When creating a subnet, make sure to select an existing Overlay Network as its provider. Each subnet must be associated with one and only one Overlay Network.
+- **A Subnet defines an IP range (CIDR block) within the VPC — but it must be associated with exactly one Overlay Network to actually carry traffic.**\
+
+Each Subnet must be mapped to only one Overlay Network, and each Overlay Network can be used by only one Subnet.
+
+This 1:1 relationship ensures:
+
+- **Clear and predictable routing behavior**\
+
+- **Isolation between Subnets**\
+
+- **Avoidance of routing conflicts or traffic leakage**\
 
 
 **2.Creat VPC**
