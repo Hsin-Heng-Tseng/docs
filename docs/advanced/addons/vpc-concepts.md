@@ -56,11 +56,12 @@ After creation, you’ll have an isolated network space ready for subnet creatio
 
 **3.Create Subnets** 
 
-Subnet Name		    CIDR			      Provider	    			Gateway IP
+| Subnet Name      | CIDR           | Provider          | Gateway IP   |
+|------------------|----------------|-------------------|--------------|
+| vswitch1-subnet  | 172.20.10.0/24 | default/vswitch1  | 172.20.10.1  |
+| vswitch2-subnet  | 172.20.20.0/24 | default/vswitch2  | 172.20.20.1  |
 
-vswitch1-subnet		172.20.10.0/24	default/vswitch1		172.20.10.1
 
-vswitch2-subnet		172.20.20.0/24	default/vswitch2		172.20.20.1
 
 **4.Creat VM**
 
@@ -271,9 +272,9 @@ Type: OverlayNetwork
 
 Create a subnet within the Virtual Private Cloud named 'ovn-cluster'. 
 
-**Subnet Name		   CIDR			      Provider						          Gateway IP**
-
-external-subnet		172.20.30.0/24	default/vswitch-external			172.20.30.1
+| Subnet Name      | CIDR           | Provider               | Gateway IP   |
+|------------------|----------------|------------------------|--------------|
+| external-subnet  | 172.20.30.0/24 | default/vswitch-external | 172.20.30.1 |
 
 **3.Creat VM**
 
@@ -380,43 +381,52 @@ After creation, you’ll have an isolated network space ready for subnet creatio
 
 **vpcpeer-1**
 
-**Subnet Name		CIDR			    Provider		      	Gateway IP**
+| Subnet Name | CIDR        | Provider         | Gateway IP |
+|-------------|-------------|------------------|------------|
+| subnet1     | 10.0.0.0/24 | default/vswitch3 | 10.0.0.1   |
 
-subnet1			  	10.0.0.0/24		default/vswitch3		10.0.0.1
+
 
 **vpcpeer-2**
 
-**Subnet Name		CIDR			    Provider			      Gateway IP**
+| Subnet Name | CIDR        | Provider         | Gateway IP |
+|-------------|-------------|------------------|------------|
+| subnet2     | 20.0.0.0/24 | default/vswitch4 | 20.0.0.1   |
 
-subnet2			  	20.0.0.0/24		default/vswitch4		20.0.0.1
 
 **4.Edit Confic**
 
 **vpcpeer-1**
 
 VPC peering \
-**Local Connect IP 	Remote VPC** 
+| Local Connect IP  | Remote VPC  |
+|-------------------|-------------|
+| 169.254.0.1/30    | vpcpeer-2   |
 
-169\.254.0.1/30 		vpcpeer-2
+
 
 Static Routes
 
-**CIDR 			    Next Hop IP**
+| CIDR         | Next Hop IP   |
+|--------------|--------------|
+| 20.0.0.0/16  | 169.254.0.2  |
 
-20\.0.0.0/16		169.254.0.2
+
 
 **vpcpeer-2**
 
 VPC peering \
-**Local Connect IP 	Remote VPC** 
+| Local Connect IP | Remote VPC    |
+|------------------|--------------|
+| 169.254.0.2/30   | vpcpeer-1    |
 
-169\.254.0.2/30 		vpcpeer-1
+
 
 Static Routes
 
-**CIDR 			    Next Hop IP**
-
-10\.0.0.0/16		169.254.0.1
+| CIDR         | Next Hop IP   |
+|--------------|--------------|
+| 10.0.0.0/16  | 169.254.0.1  |
 
 **5.Creat VM**
 
