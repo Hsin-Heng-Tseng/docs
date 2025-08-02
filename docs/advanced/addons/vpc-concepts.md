@@ -44,6 +44,23 @@ IP: 172.20.10.X     IP: 172.20.10.Y                    IP: 172.20.20.Z
 
 This diagram illustrates how VPCs, subnets, overlay networks, and VMs are logically connected in Harvester with Kube-OVN.
 
+#### Notes
+- **Each Subnet must be mapped to exactly one Overlay Network, and vice versa (1:1 relationship).**
+
+- **VMs attach to an Overlay Network, and automatically receive IP/Gateway from the associated Subnet.**
+
+- **Subnets are grouped under a VPC, which manages broader traffic policies such as:**
+
+  - **Private subnet isolation**
+
+  - **NAT configuration**
+
+  - **VPC Peering**
+
+- **This structure ensures clear routing, secure segmentation, and flexible multi-subnet design.**
+
+
+
 ## **VPC Components Overview**
 We abstract the following elements as key components within a VPC:
 
