@@ -8,6 +8,42 @@ The following diagram shows a typical VPC architecture with both public and priv
 
 *Note: VPC configurations may vary across platforms, but the logical design remains consistent.*
 
+
+###  VPC → Subnet → Overlay Network → VM: Hierarchical Diagram
+
+#### Component Relationship Table
+
+| Layer | Component         | Example in Harvester        | Description                                                                 |
+|-------|-------------------|-----------------------------|-----------------------------------------------------------------------------|
+| L3    | VPC               | `vpc-1`                     | Logical network container managing multiple subnets and routing/NAT rules. |
+| L3    | Subnet            | `vswitch1-subnet`           | IP segment (CIDR); each subnet is bound to one unique Overlay Network.     |
+| L2    | Overlay Network   | `vswitch1`                  | Virtual Layer 2 switch that connects VMs; carries subnet traffic.          |
+| L2/L3 | Virtual Machine   | `vm1-vswitch1`              | Attached to an Overlay Network; receives IP/Gateway from its subnet.       |
+
+#### ASCII Diagram
+
+```
+                                 [ VPC: vpc-1 ]
+                                        │
+                  ┌─────────────────────┴─────────────────────┐
+                  │                                           │
+     [ Subnet: vswitch1-subnet ]                 [ Subnet: vswitch2-subnet ]
+       CIDR: 172.20.10.0/24                          CIDR: 172.20.20.0/24
+       Gateway: 172.20.10.1                          Gateway: 172.20.20.1
+                  │                                           │
+     [ Overlay Network: vswitch1 ]               [ Overlay Network: vswitch2 ]
+                  │                                           │
+         ┌────────┴────────┐                         ┌────────┴────────┐
+         │                 │                         │                 │
+[VM: vm1-vswitch1] [VM: vm2-vswitch1]                [VM: vm1-vswitch2]
+IP: 172.20.10.X     IP: 172.20.10.Y                    IP: 172.20.20.Z
+
+
+
+```
+
+This diagram illustrates how VPCs, subnets, overlay networks, and VMs are logically connected in Harvester with Kube-OVN.
+
 ## **VPC Components Overview**
 We abstract the following elements as key components within a VPC:
 
