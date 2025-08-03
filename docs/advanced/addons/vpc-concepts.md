@@ -59,6 +59,87 @@ This diagram illustrates how VPCs, subnets, overlay networks, and VMs are logica
 
 - **This structure ensures clear routing, secure segmentation, and flexible multi-subnet design.**
 
+####  Harvester + Kube-OVN Integration Architecture (Multi-VPC, Text-Based)
+
+This diagram illustrates how multiple VPCs and subnets in Kube-OVN map to Harvester’s overlay networks and virtual machines, enabling scalable, isolated L3 and L2 network structures across the cluster.
+
+```
+
+                                   ┌───────────────────────────────────────────┐
+                                   │                 Kube-OVN                  │
+                                   │          (SDN Controller / IPAM)          │
+                                   └───────────────────────────────────────────┘
+                                                        │
+         ┌──────────────────────────────────────────────┴──────────────────────────────────────────────┐
+         │                                                                                             │  
+ ┌──────────────┐                                                                               ┌──────────────┐ 
+ │  VPC: vpc-1  │                                                                               │   VPC: vpc-2 │
+ └──────────────┘                                                                               └──────────────┘
+        │                                                                                               │
+        ▼                                                                                               ▼
+┌──────────────────────────────┐                                                        ┌──────────────────────────────┐
+│ Subnet: vswitch1-subnet      │                                                        │ Subnet: vswitch3-subnet      │
+│ CIDR: 172.20.10.0/24         │                                                        │ CIDR: 10.0.0.0/24            │
+│ Gateway: 172.20.10.1         │                                                        │ Gateway: 10.0.0.1            │
+└──────────────────────────────┘                                                        └──────────────────────────────┘
+            │  (1:1 mapping - Provider binding)                                                        │
+            ▼                                                                                          ▼
+┌──────────────────────────────┐                                                        ┌──────────────────────────────┐
+│ Harvester Overlay: vswitch1  │                                                        │ Harvester Overlay: vswitch3  │
+│ Type: OverlayNetwork         │                                                        │ Type: OverlayNetwork         │
+└──────────────────────────────┘                                                        └──────────────────────────────┘
+            │                                                                                          │
+            ▼                                                                                          ▼
+┌──────────────────────┐                                                                   ┌──────────────────────┐
+│   VM: vm1-vswitch1   │                                                                   │   VM: vm1-vswitch3   │
+│   IP: 172.20.10.5    │◀──────        Connected via vswitch1 (Overlay)            ──────▶│   IP: 10.0.0.2       │
+└──────────────────────┘                                                                   └──────────────────────┘
+            ▲
+            │
+  VM launched and managed by Harvester
+
+```
+####  Logical Roles and Responsibilities
+
+| **Component**       | **Platform** | **Responsibility**                                |
+|---------------------|--------------|---------------------------------------------------|
+| **VPC**             | Kube-OVN     | Top-level L3 domain, manages subnet groupings     |
+| **Subnet**          | Kube-OVN     | CIDR assignment, routing, gateway, firewall rules |
+| **Overlay Network** | Harvester    | L2 virtual switch (OVS bridge), mapped to subnet  |
+| **VM**              | Harvester    | Runs compute workloads, connected to overlay      |
+
+####  Integration Workflow
+
+1.Kube-OVN creates the VPC and its Subnets
+
+- **Each Subnet includes a CIDR, Gateway IP, and binds to a Harvester Overlay Network (as provider).**
+
+- **Enforces 1:1 mapping between Subnet ↔ Overlay Network.**
+
+2.Harvester defines Overlay Networks (type: OverlayNetwork)
+
+- **Each overlay (e.g., vswitch1, vswitch3) is listed as a selectable provider in the subnet creation UI in Kube-OVN.**
+
+3.Harvester provisions VMs connected to an Overlay Network.
+
+- **Once VM boots, it requests IP via Kube-OVN's IPAM.**
+
+- **VM receives its IP, gateway, and routing from the associated Subnet.**
+
+4.Kube-OVN handles all L3 logic: routing, NAT, VPC peering, isolation
+
+- **Harvester focuses purely on compute and network attachment.**
+
+- **Network policy enforcement, private subnets, and NAT egress are managed by Kube-OVN.**
+
+####  Design Benefits
+
+| **Reason**                       | **Explanation**                                                              |
+|----------------------------------|------------------------------------------------------------------------------|
+| **Clear separation of concerns** | Harvester handles virtualization; Kube-OVN handles SDN                      |
+| **Scalability**                  | New VPCs, subnets, and peering don’t require changes in Harvester core      |
+| **Kubernetes-native networking** | Kube-OVN integrates tightly with Kubernetes, supporting CRDs, policies, etc.|
+| **Isolation and observability**  | Centralized control over IPs, ACLs, and routing through Kube-OVN            |
 
 
 ## **VPC Components Overview**
@@ -108,13 +189,13 @@ Step 2: Create a Subnet and Link It to an Overlay Network
 
 3.Fill in the Subnet details:
 
-- **Name: vswitch1-subnet**\
+- **Name: vswitch1-subnet**
 
-- **CIDR: Example 172.20.10.0/24**\
+- **CIDR: Example 172.20.10.0/24**
 
-- **Gateway IP: Example 172.20.10.1**\
+- **Gateway IP: Example 172.20.10.1**
 
-- **Provider: Select the corresponding Overlay Network from the dropdown (e.g., default/vswitch1)**\
+- **Provider: Select the corresponding Overlay Network from the dropdown (e.g., default/vswitch1)**
 
 The UI will only show Overlay Networks that have not been used by other subnets — this enforces the 1:1 mapping automatically.
 
