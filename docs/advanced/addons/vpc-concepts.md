@@ -59,7 +59,7 @@ This diagram illustrates how VPCs, subnets, overlay networks, and VMs are logica
 
 - **This structure ensures clear routing, secure segmentation, and flexible multi-subnet design.**
 
-####  Harvester + Kube-OVN Integration Architecture (Multi-VPC, Text-Based)
+###  Harvester + Kube-OVN Integration Architecture (Multi-VPC, Text-Based)
 
 This diagram illustrates how multiple VPCs and subnets in Kube-OVN map to Harvester’s overlay networks and virtual machines, enabling scalable, isolated L3 and L2 network structures across the cluster.
 
@@ -140,6 +140,15 @@ This diagram illustrates how multiple VPCs and subnets in Kube-OVN map to Harves
 | **Scalability**                  | New VPCs, subnets, and peering don’t require changes in Harvester core      |
 | **Kubernetes-native networking** | Kube-OVN integrates tightly with Kubernetes, supporting CRDs, policies, etc.|
 | **Isolation and observability**  | Centralized control over IPs, ACLs, and routing through Kube-OVN            |
+
+####  Why This Design?
+
+| **Reason**                                  | **Explanation**                                                                                                                          |
+|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| **Clear Responsibility Separation**         | Harvester handles virtualization and VM lifecycle; Kube-OVN manages the network control plane.                                           |
+| **High Scalability**                        | Features like multi-VPC, cross-subnet routing, VPC Peering, and NAT are controlled by Kube-OVN without modifying Harvester’s core logic. |
+| **Standards-Based SDN Integration**         | Kube-OVN uses OVS + OVN, aligning with modern cloud-native SDN architectures.                                                            |
+| **Simplified Management & Troubleshooting** | IPs, routing, and ACLs for VMs are centrally managed by Kube-OVN, making monitoring and debugging more efficient.                        |
 
 
 ## **VPC Components Overview**
